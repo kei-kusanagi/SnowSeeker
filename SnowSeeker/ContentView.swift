@@ -11,6 +11,8 @@ import SwiftUI
 
 struct ContentView: View {
     
+    @State private var favorites = Favorites()
+    
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
     
     var filteredResorts: [Resort] {
@@ -40,15 +42,23 @@ struct ContentView: View {
                                 RoundedRectangle(cornerRadius: 5)
                                     .stroke(.black, lineWidth: 1)
                             )
-
+                        
                         VStack(alignment: .leading) {
                             Text(resort.name)
                                 .font(.headline)
                             Text("\(resort.runs) runs")
                                 .foregroundStyle(.secondary)
                         }
+                        
+                        if favorites.contains(resort) {
+                            Spacer()
+                            Image(systemName: "heart.fill")
+                                .accessibilityLabel("This is a favorite resort")
+                                .foregroundStyle(.red)
+                        }
                     }
                 }
+               
             }
             .searchable(text: $searchText, prompt: "Search for a resort")
 
@@ -59,6 +69,7 @@ struct ContentView: View {
         } detail: {
             WelcomeView()
         }
+        .environment(favorites)
     }
 }
 
