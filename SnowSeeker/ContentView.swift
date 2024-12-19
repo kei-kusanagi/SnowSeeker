@@ -7,28 +7,45 @@
 
 import SwiftUI
 
+enum SortType {
+    case `default`, alphabetical, country
+}
 
 
 struct ContentView: View {
-    
-    @State private var favorites = Favorites()
-    
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
+
+    @State private var favorites = Favorites()
+    @State private var searchText = ""
+
+    @State private var sortType = SortType.default
+    @State private var showingSortOptions = false
     
-    var filteredResorts: [Resort] {
+     var filteredResorts: [Resort] {
         if searchText.isEmpty {
             return resorts
         } else {
             return resorts.filter { $0.name.localizedStandardContains(searchText) }
         }
     }
+    
+    var sortedResorts: [Resort] {
+        switch sortType {
+        case .default:
+            filteredResorts
+        case .alphabetical:
+            filteredResorts.sorted { $0.name < $1.name }
+        case .country:
+            filteredResorts.sorted { $0.country < $1.country }
+        }
+    }
 
 
-    @State private var searchText = ""
+
 
     var body: some View {
         NavigationSplitView {
-            List(filteredResorts) { resort in
+            List(sortedResorts) { resort in
                 NavigationLink(value: resort) {
                     HStack {
                         Image(resort.country)
@@ -56,11 +73,36 @@ struct ContentView: View {
                                 .accessibilityLabel("This is a favorite resort")
                                 .foregroundStyle(.red)
                         }
+                        Spacer()
+
+                        ZStack{
+                            Image(decorative: resort.id)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 50)
+                                .mask(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [.black.opacity(0), .black, .black]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        }
                     }
                 }
                
             }
             .searchable(text: $searchText, prompt: "Search for a resort")
+            .toolbar {
+                Button("Change sort order", systemImage: "arrow.up.arrow.down") {
+                    showingSortOptions = true
+                }
+            }
+            .confirmationDialog("Sort order", isPresented: $showingSortOptions) {
+                Button("Default") { sortType = .default }
+                Button("Alphabetical") { sortType = .alphabetical }
+                Button("By Country") { sortType = .country }
+            }
 
             .navigationTitle("Resorts")
             .navigationDestination(for: Resort.self) { resort in
