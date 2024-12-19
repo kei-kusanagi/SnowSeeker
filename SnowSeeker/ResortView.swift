@@ -27,12 +27,17 @@ struct ResortView: View {
                     Image(decorative: resort.id)
                         .resizable()
                         .scaledToFit()
-
-                    Text(resort.imageCredit)
-                        .padding(10)
-                        .background(.black.opacity(0.7))
-                        .foregroundStyle(.white)
-                        .offset(x: -5, y: -5)
+                    HStack(spacing: 0) {
+                        Image(systemName: "camera.fill")
+                            .padding(10)
+                            .background(.black.opacity(0.7))
+                            .foregroundStyle(.white)
+                        Text(resort.imageCredit)
+                            .padding(10)
+                            .background(.black.opacity(0.7))
+                            .foregroundStyle(.white)
+                        }
+                    .offset(x: -5, y: -5)
                 }
                 
                 HStack {
